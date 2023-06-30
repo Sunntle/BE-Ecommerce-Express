@@ -1,41 +1,50 @@
-var express = require('express');
+var express = require("express");
 var router = express.Router();
-var db = require('../models/database');
-var modelSanPham = require('../models/product')
-router.get('/', function(req, res, next) {
-    modelSanPham.list(data => res.json(data))
+var db = require("../models/database");
+var modelSanPham = require("../models/product");
+router.get("/", function (req, res, next) {
+  modelSanPham.list((data) => res.json(data));
 });
-router.get('/itemHot', function(req, res, next) {
-    modelSanPham.itemBestSeller(data => res.json(data))
+router.get("/itemHot", function (req, res, next) {
+  modelSanPham.itemBestSeller((data) => res.json(data));
 });
-router.get('/itemNew', function(req, res, next) {
-    modelSanPham.itemNew(data => res.json(data))
+router.get("/itemNew", function (req, res, next) {
+  modelSanPham.itemNew((data) => res.json(data));
 });
-router.post('/', (req, res) => {
-    let data = req.body; 
-    modelSanPham.create(data , function(){
-    res.sendStatus(200);
-    });
- });
- router.get('/:id', (req, res) => {
-    let id = req.params.id;
-    modelSanPham.read(id, function(u){
-      res.json(u);
-    });
- });
- router.get('/idLoai/:id', (req, res) => {
+router.get("/pagination/:id", (req, res, next) => {
   let id = req.params.id;
-  modelSanPham.readByLoai(id, function(u){
+  modelSanPham.pagination(+id, 3, (data) => res.json(data));
+});
+router.get("/search/:kw", (req, res, next) => {
+  let kw = req.params.kw;
+  modelSanPham.search(kw, 3, 0, (data) => res.json(data));
+});
+
+router.post("/", (req, res) => {
+  let data = req.body;
+  modelSanPham.create(data, function () {
+    res.sendStatus(200);
+  });
+});
+router.get("/:id", (req, res) => {
+  let id = req.params.id;
+  modelSanPham.read(id, function (u) {
     res.json(u);
   });
+});
+router.get("/idLoai/:id", (req, res) => {
+  let id = req.params.id;
+  modelSanPham.readByLoai(id, function (u) {
+    res.json(u);
   });
- router.put('/:id', (req, res)=> {
-      let data = req.body;
-      let id = req.params.id;
-      modelSanPham.update(id, data, function(){
-        res.json({thongbao: 'Đã cập nhật user '});
-      })
- });
+});
+router.put("/:id", (req, res) => {
+  let data = req.body;
+  let id = req.params.id;
+  modelSanPham.update(id, data, function () {
+    res.json({ thongbao: "Đã cập nhật user " });
+  });
+});
 // router.get('/', function(req, res, next) {
 //     let sql = `SELECT * FROM sanpham`;
 //     db.query(sql, function(err, data) {
@@ -56,10 +65,10 @@ router.post('/', (req, res) => {
 //                 });
 //             });
 //     });
-    
+
 // });
 // router.get('/addnew', function(req, res, next) {
-//     res.send('Form thêm loại sách'); 
+//     res.send('Form thêm loại sách');
 // });
 // router.post('/store', function(req, res, next) {
 //     //nhận dữ liệu từ addnew để thêm record vào db
