@@ -3,7 +3,12 @@ var router = express.Router();
 var db = require("../models/database");
 var modelSanPham = require("../models/product");
 router.get("/", function (req, res, next) {
-  modelSanPham.list((data) => res.json(data));
+  const offset = req.query._page;
+  const limit = req.query._limit;
+  const sort = req.query._sort;
+  const order = req.query._order;
+  const search = req.query.q;
+  modelSanPham.list(limit, offset, sort, order, search, (data) => res.json(data));
 });
 router.get("/itemHot", function (req, res, next) {
   modelSanPham.itemBestSeller((data) => res.json(data));

@@ -1,7 +1,32 @@
 var db = require("./database");
-exports.list = function (callback) {
+exports.list = function (
+  limit = undefined,
+  offset = undefined,
+  sort = undefined,
+  order = "DESC",
+  q = undefined,
+  callback
+) {
   let sql = `SELECT *  FROM sanpham`;
-  db.query(sql, function (err, d) {
+  let arrParams = [];
+  if (q) {
+    sql = sql + ` WHERE name LIKE CONCAT('%', ? , '%')`;
+    arrParams.push(q);
+  }
+  if (sort) {
+    sql = sql + ` ORDER BY ${sort} ${order}`;
+  }
+  if (limit && offset) {
+    sql = sql + ` LIMIT ? OFFSET ?`;
+    arrParams.push(+limit, +offset);
+  } else if (limit && offset == undefined) {
+    sql = sql + ` LIMIT ? `;
+    arrParams.push(+limit);
+  } else if (offset && limit == undefined) {
+    sql = sql + ` LIMIT 16 OFFSET ? `;
+    arrParams.push(+offset);
+  }
+  db.query(sql, arrParams, function (err, d) {
     callback(d);
   });
 };
@@ -52,20 +77,5 @@ exports.delete = function (id, callback) {
   db.query(sql, id, (err, d) => {
     if (err) throw err;
     callback();
-  });
-};
-//ROWS FETCH NEXT 3 ROWS ONLY
-exports.pagination = function (limit, offset, callback) {
-  let sql = "SELECT * FROM sanpham LIMIT ? OFFSET ?";
-  db.query(sql, limit, offset, (err, d) => {
-    if (err) throw err;
-    callback(d);
-  });
-};
-exports.search = function (kw, limit, offset, callback) {
-  let sql = "SELECT * FROM sanpham WHERE name LIKE CONCAT('%', ? , '%') LIMIT ? OFFSET ?";
-  db.query(sql, [kw, limit, offset], (err, d) => {
-    if (err) throw err;
-    callback(d);
   });
 };
