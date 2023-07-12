@@ -3,28 +3,16 @@ var router = express.Router();
 var db = require("../models/database");
 var modelSanPham = require("../models/product");
 router.get("/", function (req, res, next) {
-  const offset = req.query._page;
-  const limit = req.query._limit;
-  const sort = req.query._sort;
-  const order = req.query._order;
-  const search = req.query.q;
-  modelSanPham.list(limit, offset, sort, order, search, (data) => res.json(data));
+  const { _page, _limit, _sort, _order, q, ...rest } = req.query;
+  modelSanPham.list(_limit, _page, _sort, _order, q, rest, (data) => res.json(data));
 });
-router.get("/itemHot", function (req, res, next) {
-  modelSanPham.itemBestSeller((data) => res.json(data));
-});
-router.get("/itemNew", function (req, res, next) {
-  modelSanPham.itemNew((data) => res.json(data));
-});
-router.get("/pagination/:id", (req, res, next) => {
+router.get("/idLoai/:id", (req, res) => {
   let id = req.params.id;
-  modelSanPham.pagination(+id, 3, (data) => res.json(data));
+  const { _limit, _page, _sort, _order, ...rest } = req.query;
+  modelSanPham.readByLoai(id, _limit, _page, _sort, _order, rest, function (u) {
+    res.json(u);
+  });
 });
-router.get("/search/:kw", (req, res, next) => {
-  let kw = req.params.kw;
-  modelSanPham.search(kw, 3, 0, (data) => res.json(data));
-});
-
 router.post("/", (req, res) => {
   let data = req.body;
   modelSanPham.create(data, function () {
@@ -37,12 +25,7 @@ router.get("/:id", (req, res) => {
     res.json(u);
   });
 });
-router.get("/idLoai/:id", (req, res) => {
-  let id = req.params.id;
-  modelSanPham.readByLoai(id, function (u) {
-    res.json(u);
-  });
-});
+
 router.put("/:id", (req, res) => {
   let data = req.body;
   let id = req.params.id;
