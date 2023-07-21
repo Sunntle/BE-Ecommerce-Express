@@ -2,18 +2,20 @@ var createError = require("http-errors");
 var express = require("express");
 var path = require("path");
 var cookieParser = require("cookie-parser");
+const bodyParser = require("body-parser");
 var logger = require("morgan");
 var indexRouter = require("./routes/index");
-var usersRouter = require("./routes/users");
+var userRouter = require("./routes/user");
 var loaiRouter = require("./routes/loai");
 var productRouter = require("./routes/product");
-var bannerRouter = require("./routes/banner");
-var productFERouter = require("./routes/productFE");
+var sizeRouter = require("./routes/size");
+var colorRouter = require("./routes/color");
+var checkoutRouter = require("./routes/checkout");
 var session = require("express-session");
 var app = express();
 var cors = require("cors");
 
-app.use(cors());
+app.use(bodyParser.json());
 // view engine setup
 app.set("views", path.join(__dirname, "views"));
 app.set("view engine", "ejs");
@@ -32,13 +34,19 @@ app.use(express.urlencoded({ extended: false }));
 app.use(cookieParser());
 app.use(express.static(path.join(__dirname, "public")));
 
+const corsOptions = {
+  origin: "http://localhost:3001",
+  credentials: true,
+  methods: ["GET,PUT,POST,DELETE"],
+};
+app.use(cors(corsOptions));
 app.use("/", indexRouter);
-app.use("/users", usersRouter);
+app.use("/user", userRouter);
 app.use("/loai", loaiRouter);
 app.use("/product", productRouter);
-app.use("/banner", bannerRouter);
-app.use("/productFE", productFERouter);
-
+app.use("/size", sizeRouter);
+app.use("/color", colorRouter);
+app.use("/checkout", checkoutRouter);
 // catch 404 and forward to error handler
 app.use(function (req, res, next) {
   next(createError(404));

@@ -54,10 +54,6 @@ function queryList(
     sql = sql + ` LIMIT 16 OFFSET ? `;
     arrParams.push(+offset);
   }
-  console.log({
-    sql: sql,
-    arrParams: arrParams,
-  });
   return {
     sql: sql,
     arrParams: arrParams,
