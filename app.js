@@ -11,6 +11,9 @@ var productRouter = require("./routes/product");
 var sizeRouter = require("./routes/size");
 var colorRouter = require("./routes/color");
 var checkoutRouter = require("./routes/checkout");
+var productSizesRouter = require("./routes/product_sizes");
+var productColorRouter = require("./routes/product_colors");
+var imagesRouter = require("./routes/images");
 var session = require("express-session");
 var app = express();
 var cors = require("cors");
@@ -47,6 +50,9 @@ app.use("/product", productRouter);
 app.use("/size", sizeRouter);
 app.use("/color", colorRouter);
 app.use("/checkout", checkoutRouter);
+app.use("/product_colors", productColorRouter);
+app.use("/product_sizes", productSizesRouter);
+app.use("/images", imagesRouter);
 // catch 404 and forward to error handler
 app.use(function (req, res, next) {
   next(createError(404));

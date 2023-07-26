@@ -6,6 +6,11 @@ var modelCheckOut = require("../models/checkout");
 var modelUser = require("../models/user");
 const { authenticateUser } = require("../middlewares/authenication");
 
+router.get("/", authenticateUser, (req, res) => {
+  const { _page, _limit, _sort, _order, q, ...rest } = req.query;
+  modelCheckOut.list(_limit, _page, _sort, _order, q, rest, (data) => res.json(data));
+});
+
 router.get("/:id", authenticateUser, (req, res) => {
   const id = req.params.id;
   modelCheckOut.readOneOrderDetails(id, (d) => {
@@ -14,6 +19,7 @@ router.get("/:id", authenticateUser, (req, res) => {
     });
   });
 });
+
 router.post("/", authenticateUser, async (req, res) => {
   const id = +req.user.sub;
   const { item, total, name, address, payment_id } = req.body;
@@ -117,6 +123,12 @@ router.put("/:id", authenticateUser, async (req, res) => {
     status: req.body.status,
   };
   modelCheckOut.updateStatus(id, data, (d) => {
+    res.sendStatus(200);
+  });
+});
+router.delete("/order_items/:id", authenticateUser, async (req, res) => {
+  const id = req.params.id;
+  modelCheckOut.deleteOrderItems(id, (d) => {
     res.sendStatus(200);
   });
 });

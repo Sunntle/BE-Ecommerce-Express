@@ -1,7 +1,84 @@
 var db = require("./database");
-exports.list = function (callback) {
-  let sql = `SELECT *  FROM users`;
-  db.query(sql, function (err, d) {
+function queryList(
+  sqlQuery,
+  limit = undefined,
+  offset = undefined,
+  sort = undefined,
+  order = "DESC",
+  q = undefined,
+  res = undefined
+) {
+  let sql = sqlQuery;
+  let arrParams = [];
+  let whereExists = sql.includes("WHERE") ? true : false;
+  if (q && !sql.includes("WHERE")) {
+    sql = sql + ` WHERE p.name LIKE CONCAT('%', ? , '%')`;
+    arrParams.push(q);
+    whereExists = true;
+  }
+  if (res) {
+    for (const [key, value] of Object.entries(res)) {
+      let queryParams = key.split("_");
+      let condition;
+      let queryHaveManyParams;
+      if (queryParams[1] == "lte") condition = "<=";
+      else if (queryParams[1] == "gte") condition = ">=";
+      else {
+        if (queryParams.length <= 2) condition = "LIKE";
+        else {
+          condition = "LIKE";
+        }
+      }
+      if (whereExists) {
+        sql += ` AND `;
+      } else {
+        sql += ` WHERE `;
+        whereExists = true;
+      }
+      const syntax = queryParams.length > 2 ? queryParams[0] + "_" + queryParams[1] : queryParams[0];
+      sql += condition === "LIKE" ? `${syntax} ${condition} "${value}"` : `${syntax} ${condition} ${value} `;
+    }
+  }
+  sql += ` GROUP BY p.id`;
+  if (sort) {
+    sql = sql + ` ORDER BY ${sort} ${order}`;
+  }
+
+  if (limit && offset) {
+    offset = (offset - 1) * limit;
+    sql = sql + ` LIMIT ? OFFSET ?`;
+    arrParams.push(+limit, +offset);
+  } else if (limit && offset == undefined) {
+    sql = sql + ` LIMIT ? `;
+    arrParams.push(+limit);
+  } else if (offset && limit == undefined) {
+    offset = (offset - 1) * 16;
+    sql = sql + ` LIMIT 16 OFFSET ? `;
+    arrParams.push(+offset);
+  }
+  if (arrParams.length > 0)
+    return {
+      sql: sql,
+      arrParams: arrParams,
+    };
+  else {
+    return {
+      sql: sql,
+      arrParams: null,
+    };
+  }
+}
+exports.list = function (
+  limit = undefined,
+  offset = undefined,
+  sort = undefined,
+  order = "DESC",
+  q = undefined,
+  rest = undefined,
+  callback
+) {
+  const result = queryList(`SELECT *  FROM users as p`, limit, offset, sort, order, q, rest);
+  db.query(result.sql, result.arrParams, function (err, d) {
     callback(d);
   });
 };

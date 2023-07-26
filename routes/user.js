@@ -8,10 +8,10 @@ const fs = require("fs");
 const bcrypt = require("bcrypt");
 const { authenticateUser, checkAdminRole } = require("../middlewares/authenication");
 const PRIVATE_KEY = fs.readFileSync("private-key.txt");
-router.get("/", (req, res) => {
-  modelUsers.list(function (listusers) {
-    res.json(listusers);
-  });
+
+router.get("/", authenticateUser, (req, res) => {
+  const { _page, _limit, _sort, _order, q, ...rest } = req.query;
+  modelUsers.list(_limit, _page, _sort, _order, q, rest, (data) => res.json(data));
 });
 router.get("/:id", (req, res) => {
   let id = req.params.id;

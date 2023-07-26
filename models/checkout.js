@@ -1,5 +1,4 @@
 var db = require("./database");
-const { login } = require("./user");
 function queryList(
   sqlQuery,
   limit = undefined,
@@ -21,7 +20,6 @@ function queryList(
     for (const [key, value] of Object.entries(res)) {
       let queryParams = key.split("_");
       let condition;
-      let queryHaveManyParams;
       if (queryParams[1] == "lte") condition = "<=";
       else if (queryParams[1] == "gte") condition = ">=";
       else {
@@ -114,6 +112,14 @@ exports.createOrderItems = function (data, callback) {
 exports.updateStatus = function (id, data, callback) {
   let sql = "UPDATE order_details  SET ? WHERE id = ?";
   db.query(sql, [data, id], (err, d) => {
+    if (err) throw err;
+    callback();
+  });
+};
+
+exports.deleteOrderItems = function (product_id, callback) {
+  let sql = "DELETE FROM order_items WHERE product_id = ?";
+  db.query(sql, product_id, (err, d) => {
     if (err) throw err;
     callback();
   });
