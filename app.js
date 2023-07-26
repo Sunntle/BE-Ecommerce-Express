@@ -4,7 +4,7 @@ var path = require("path");
 var cookieParser = require("cookie-parser");
 const bodyParser = require("body-parser");
 var logger = require("morgan");
-var indexRouter = require("./routes/index");
+
 var userRouter = require("./routes/user");
 var loaiRouter = require("./routes/loai");
 var productRouter = require("./routes/product");
@@ -43,7 +43,7 @@ const corsOptions = {
   methods: ["GET,PUT,POST,DELETE"],
 };
 app.use(cors(corsOptions));
-app.use("/", indexRouter);
+
 app.use("/user", userRouter);
 app.use("/loai", loaiRouter);
 app.use("/product", productRouter);
