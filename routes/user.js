@@ -20,16 +20,22 @@ router.get("/:id", (req, res) => {
   });
 });
 router.post("/", (req, res) => {
-  const { password, username } = req.body;
+  const { password, username, email } = req.body;
   modelUsers.login(username, (d) => {
     if (!d.thongbao) {
-      return res.sendStatus(302);
+      return res.status(302).json({ error: "Username already exists" });
     } else {
-      const salt = bcrypt.genSaltSync(10);
-      const pass_mahoa = bcrypt.hashSync(password, salt);
-      const data = { ...req.body, password: pass_mahoa };
-      modelUsers.create(data, function () {
-        res.sendStatus(201);
+      modelUsers.readByEmail(email, (u) => {
+        if (!u.thongbao) {
+          return res.status(409).json({ error: "Email already exists" });
+        } else {
+          const salt = bcrypt.genSaltSync(10);
+          const pass_mahoa = bcrypt.hashSync(password, salt);
+          const data = { ...req.body, password: pass_mahoa };
+          modelUsers.create(data, function () {
+            res.sendStatus(201);
+          });
+        }
       });
     }
   });
@@ -41,7 +47,7 @@ router.post("/login", async (req, res) => {
     const kq = bcrypt.compareSync(pw, d.password);
     if (kq) {
       const { password, ...data } = d;
-      const jwtBearerToken = jwt.sign({}, PRIVATE_KEY, {
+      const jwtBearerToken = jwt.sign({ role: d.role }, PRIVATE_KEY, {
         algorithm: "RS256",
         expiresIn: "1h",
         subject: d.id.toString(),
@@ -140,14 +146,13 @@ router.post("/changePass", authenticateUser, function (req, res) {
 router.put("/:id", authenticateUser, (req, res) => {
   const data = req.body;
   const idUser = req.params.id;
-  const id = req.user;
   modelUsers.update(idUser, data, function () {
     res.sendStatus(200);
   });
 });
 router.delete("/:id", authenticateUser, checkAdminRole, (req, res) => {
-  let id = req.params.id;
-  modelUsers.delete(id, function () {
+  let user_id = req.params.id;
+  modelUsers.delete(user_id, function () {
     res.sendStatus(200);
   });
 });

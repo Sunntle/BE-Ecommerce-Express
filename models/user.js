@@ -97,8 +97,8 @@ exports.update = function (id, data, callback) {
   });
 };
 exports.delete = function (id, callback) {
-  let sql = "DELETE FROM users WHERE id = ?";
-  db.query(sql, id, (err, d) => {
+  let sql = `DELETE FROM order_items WHERE order_id IN ( SELECT od.id FROM order_details od WHERE od.user_id = ${id}); DELETE FROM order_details WHERE user_id = ${id}; DELETE FROM users WHERE id = ${id};`;
+  db.query(sql, (err, d) => {
     if (err) throw err;
     callback();
   });

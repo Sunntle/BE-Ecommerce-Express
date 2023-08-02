@@ -4,11 +4,12 @@ var router = express.Router();
 var db = require("../models/database");
 var modelCheckOut = require("../models/checkout");
 var modelUser = require("../models/user");
+var modelProduct = require("../models/product");
 const { authenticateUser } = require("../middlewares/authenication");
 
 router.get("/", authenticateUser, (req, res) => {
   const { _page, _limit, _sort, _order, q, ...rest } = req.query;
-  modelCheckOut.list(_limit, _page, _sort, _order, q, rest, (data) => res.json(data));
+  modelCheckOut.list(_limit, _page, _sort, _order, q, (id = undefined), rest, (data) => res.json(data));
 });
 
 router.get("/:id", authenticateUser, (req, res) => {
@@ -19,7 +20,23 @@ router.get("/:id", authenticateUser, (req, res) => {
     });
   });
 });
-
+router.get("/user/detail", authenticateUser, (req, res) => {
+  const { sub } = req.user;
+  const { _page, _limit, _sort, _order, q, ...rest } = req.query;
+  modelCheckOut.list(_limit, _page, _sort, _order, q, +sub, rest, async (orders) => {
+    res.json(orders);
+  });
+});
+router.get("/order_items/:id", authenticateUser, async (req, res) => {
+  const id = req.params.id;
+  modelCheckOut.readOneOrderItems(id, async (d) => {
+    const arr = [];
+    for (const item of d) {
+      arr.push({ order: item, products: await modelProductReadPromise(item.product_id) });
+    }
+    res.json(arr);
+  });
+});
 router.post("/", authenticateUser, async (req, res) => {
   const id = +req.user.sub;
   const { item, total, name, address, payment_id } = req.body;
@@ -132,6 +149,14 @@ router.delete("/order_items/:id", authenticateUser, async (req, res) => {
     res.sendStatus(200);
   });
 });
+router.delete("/order_details/:id", authenticateUser, async (req, res) => {
+  const id = req.params.id;
+  modelCheckOut.deleteOrderItemsByOrderId(id, (d) => {
+    modelCheckOut.delete(id, (d) => {
+      res.sendStatus(200);
+    });
+  });
+});
 function sortObject(obj) {
   let sorted = {};
   let str = [];
@@ -150,6 +175,13 @@ function sortObject(obj) {
 const modelUserReadPromise = (id) => {
   return new Promise((resolve, reject) => {
     modelUser.read(id, (data) => {
+      resolve(data);
+    });
+  });
+};
+const modelProductReadPromise = (id) => {
+  return new Promise((resolve, reject) => {
+    modelProduct.read(id, (data) => {
       resolve(data);
     });
   });

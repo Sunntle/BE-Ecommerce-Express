@@ -6,11 +6,17 @@ function queryList(
   sort = undefined,
   order = "DESC",
   q = undefined,
+  id = undefined,
   res = undefined
 ) {
   let sql = sqlQuery;
   let arrParams = [];
   let whereExists = sql.includes("WHERE") ? true : false;
+  if (id) {
+    sql += ` WHERE user_id=?`;
+    arrParams.push(id);
+    whereExists = true;
+  }
   if (q && !sql.includes("WHERE")) {
     sql = sql + ` WHERE p.name LIKE CONCAT('%', ? , '%')`;
     arrParams.push(q);
@@ -20,13 +26,10 @@ function queryList(
     for (const [key, value] of Object.entries(res)) {
       let queryParams = key.split("_");
       let condition;
-      if (queryParams[1] == "lte") condition = "<=";
-      else if (queryParams[1] == "gte") condition = ">=";
+      if (queryParams[1] == "lte" || queryParams[2] == "lte") condition = "<=";
+      else if (queryParams[1] == "gte" || queryParams[2] == "gte") condition = ">=";
       else {
-        if (queryParams.length <= 2) condition = "LIKE";
-        else {
-          condition = "LIKE";
-        }
+        condition = "LIKE";
       }
       if (whereExists) {
         sql += ` AND `;
@@ -35,12 +38,27 @@ function queryList(
         whereExists = true;
       }
       const syntax = queryParams.length > 2 ? queryParams[0] + "_" + queryParams[1] : queryParams[0];
-      sql += condition === "LIKE" ? `${syntax} ${condition} "${value}"` : `${syntax} ${condition} ${value} `;
+      if (syntax.includes("create_at")) {
+        let newValue;
+        let time;
+        let number;
+        const arrTime = ["day", "month", "year"];
+        arrTime.forEach((el) => {
+          if (value.includes(el)) {
+            time = el;
+            number = value.split(el)[0];
+          }
+        });
+        newValue = `DATE_ADD(CURDATE(), INTERVAL ${number} ${time})`;
+        sql += condition === "LIKE" ? `${syntax} ${condition} "${newValue}"` : `${syntax} ${condition} ${newValue} `;
+      } else {
+        sql += condition === "LIKE" ? `${syntax} ${condition} "${value}"` : `${syntax} ${condition} ${value} `;
+      }
     }
   }
   sql += ` GROUP BY p.id`;
   if (sort) {
-    sql = sql + ` ORDER BY ${sort} ${order}`;
+    sql += ` ORDER BY ${sort} ${order}`;
   }
 
   if (limit && offset) {
@@ -55,28 +73,14 @@ function queryList(
     sql = sql + ` LIMIT 16 OFFSET ? `;
     arrParams.push(+offset);
   }
-  if (arrParams.length > 0)
-    return {
-      sql: sql,
-      arrParams: arrParams,
-    };
-  else {
-    return {
-      sql: sql,
-      arrParams: null,
-    };
-  }
+
+  return {
+    sql: sql,
+    arrParams: arrParams.length > 0 ? arrParams : null,
+  };
 }
-exports.list = function (
-  limit = undefined,
-  offset = undefined,
-  sort = undefined,
-  order = "DESC",
-  q = undefined,
-  rest = undefined,
-  callback
-) {
-  const result = queryList(`SELECT * FROM order_details as p`, limit, offset, sort, order, q, rest);
+exports.list = function (limit, offset, sort, order = "DESC", q, id, rest, callback) {
+  const result = queryList(`SELECT * FROM order_details as p`, limit, offset, sort, order, q, id, rest);
   db.query(result.sql, result.arrParams, function (err, d) {
     callback(d);
   });
@@ -91,7 +95,7 @@ exports.readOneOrderDetails = function (id, callback) {
 exports.readOneOrderItems = function (id, callback) {
   let sql = "SELECT * FROM order_items WHERE order_id=?";
   db.query(sql, +id, (err, d) => {
-    // if (d.length < 1) data = { thongbao: `Id ${id} khong tim thay` };
+    if (d.length < 1) data = { thongbao: `Id ${id} khong tim thay` };
     callback(d);
   });
 };
@@ -124,7 +128,20 @@ exports.deleteOrderItems = function (product_id, callback) {
     callback();
   });
 };
-
+exports.deleteOrderItemsByOrderId = function (order_id, callback) {
+  let sql = "DELETE FROM order_items WHERE order_id = ?";
+  db.query(sql, order_id, (err, d) => {
+    if (err) throw err;
+    callback();
+  });
+};
+exports.deleteByUser = function (user_id, callback) {
+  let sql = "DELETE FROM order_details WHERE user_id = ?";
+  db.query(sql, id, (err, d) => {
+    if (err) throw err;
+    callback();
+  });
+};
 exports.delete = function (id, callback) {
   let sql = "DELETE FROM order_details WHERE id = ?";
   db.query(sql, id, (err, d) => {

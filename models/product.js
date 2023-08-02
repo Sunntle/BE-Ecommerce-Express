@@ -1,5 +1,5 @@
 var db = require("./database");
-const sqlSyntaxBasic = `SELECT p.*, GROUP_CONCAT(DISTINCT i.img ORDER BY i.img DESC SEPARATOR ';') AS allImg, GROUP_CONCAT(DISTINCT s.size) AS allSize,GROUP_CONCAT(DISTINCT c.color) AS allColor FROM sanpham p LEFT JOIN product_sizes ps ON p.id = ps.product_id LEFT JOIN size s ON ps.size_id = s.size_id LEFT JOIN product_colors pc ON p.id = pc.product_id LEFT JOIN color c ON pc.product_color = c.color_id LEFT JOIN images i ON p.id = i.idSp `;
+const sqlSyntaxBasic = `SELECT p.*, GROUP_CONCAT(DISTINCT i.img ORDER BY i.img DESC SEPARATOR ';') AS allImg, GROUP_CONCAT(DISTINCT s.size) AS allSize,GROUP_CONCAT(DISTINCT c.color) AS allColor FROM sanpham p LEFT JOIN product_sizes ps ON p.id = ps.product_id LEFT JOIN size s ON ps.size_id = s.size_id LEFT JOIN product_colors pc ON p.id = pc.product_id LEFT JOIN color c ON pc.product_color = c.color_id LEFT JOIN images i ON p.id = i.idSp`;
 //DELETE FROM product_sizes WHERE product_id = <your_product_id> AND size_id = <your_size_id>;
 function queryList(
   sqlQuery,

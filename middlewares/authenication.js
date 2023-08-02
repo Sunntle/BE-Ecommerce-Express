@@ -27,7 +27,7 @@ const authenticateUser = (req, res, next) => {
 
 // Middleware to check if user is an admin
 const checkAdminRole = (req, res, next) => {
-  if (req.user && req.user.role === "1") {
+  if (req.user && req.user.role === 1) {
     next();
   } else {
     res.sendStatus(403); // Forbidden
