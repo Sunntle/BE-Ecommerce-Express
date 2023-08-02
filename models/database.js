@@ -1,9 +1,10 @@
 const mysql = require("mysql");
+require("dotenv").config();
 const db = mysql.createConnection({
-  host: "localhost",
-  user: "root",
+  host: process.env.DATABASE_HOST,
+  user: process.env.DATABASE_USER,
   password: "",
-  database: "asmnodejs",
+  database: process.env.DATABASE_NAME,
   multipleStatements: true,
 });
 db.connect(() => console.log("Da ket noi database !"));

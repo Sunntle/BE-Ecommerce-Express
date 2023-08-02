@@ -8,6 +8,7 @@ const fs = require("fs");
 const bcrypt = require("bcrypt");
 const { authenticateUser, checkAdminRole } = require("../middlewares/authenication");
 const PRIVATE_KEY = fs.readFileSync("private-key.txt");
+require("dotenv").config();
 
 router.get("/", authenticateUser, (req, res) => {
   const { _page, _limit, _sort, _order, q, ...rest } = req.query;
@@ -89,8 +90,8 @@ router.post("/forgotpass", function (req, res) {
         port: 465,
         secure: true,
         auth: {
-          user: "taikute012532@gmail.com", //Tài khoản gmail vừa tạo
-          pass: "eadzzpimrerfhkss", //Mật khẩu tài khoản gmail vừa tạo
+          user: process.env.EMAIL_USERNAME, //Tài khoản gmail vừa tạo
+          pass: process.env.EMAIL_PASSWORD, //Mật khẩu tài khoản gmail vừa tạo
         },
         tls: {
           // do not fail on invalid certs
