@@ -90,7 +90,7 @@ router.post("/forgotpass", function (req, res) {
         secure: true,
         auth: {
           user: "taikute012532@gmail.com", //Tài khoản gmail vừa tạo
-          pass: "eadzzpimrerfhkss", //Mật khẩu tài khoản gmail vừa tạo
+          pass: "", //Mật khẩu tài khoản gmail vừa tạo
         },
         tls: {
           // do not fail on invalid certs
