@@ -1,28 +1,20 @@
 var createError = require("http-errors");
+const compression = require('compression')
 var express = require("express");
 var path = require("path");
 var cookieParser = require("cookie-parser");
 const bodyParser = require("body-parser");
 var logger = require("morgan");
-
-var userRouter = require("./routes/user");
-var loaiRouter = require("./routes/loai");
-var productRouter = require("./routes/product");
-var sizeRouter = require("./routes/size");
-var colorRouter = require("./routes/color");
-var checkoutRouter = require("./routes/checkout");
-var productSizesRouter = require("./routes/product_sizes");
-var productColorRouter = require("./routes/product_colors");
-var imagesRouter = require("./routes/images");
-var session = require("express-session");
+var initRoutes = require("./routes")
+var session = require('cookie-session');
 var app = express();
 var cors = require("cors");
-
+require("dotenv").config();
 app.use(bodyParser.json());
 // view engine setup
 app.set("views", path.join(__dirname, "views"));
 app.set("view engine", "ejs");
-
+app.use(compression())
 app.use(
   session({
     secret: "bimat",
@@ -37,22 +29,12 @@ app.use(express.urlencoded({ extended: false }));
 app.use(cookieParser());
 app.use(express.static(path.join(__dirname, "public")));
 
-const corsOptions = {
-  origin: "http://localhost:3001",
+app.use(cors({
+  origin: '*',
   credentials: true,
   methods: ["GET,PUT,POST,DELETE"],
-};
-app.use(cors(corsOptions));
-
-app.use("/user", userRouter);
-app.use("/loai", loaiRouter);
-app.use("/product", productRouter);
-app.use("/size", sizeRouter);
-app.use("/color", colorRouter);
-app.use("/checkout", checkoutRouter);
-app.use("/product_colors", productColorRouter);
-app.use("/product_sizes", productSizesRouter);
-app.use("/images", imagesRouter);
+}));
+initRoutes(app)
 // catch 404 and forward to error handler
 app.use(function (req, res, next) {
   next(createError(404));

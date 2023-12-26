@@ -5,7 +5,7 @@ var modelUsers = require("./../models/user");
 const nodemailer = require("nodemailer");
 const jwt = require("jsonwebtoken");
 const fs = require("fs");
-const bcrypt = require("bcrypt");
+const bcrypt = require("bcryptjs");
 const { authenticateUser, checkAdminRole } = require("../middlewares/authenication");
 const PRIVATE_KEY = fs.readFileSync("private-key.txt");
 require("dotenv").config();

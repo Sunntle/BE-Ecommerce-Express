@@ -35,7 +35,7 @@ function queryList(
         sql += ` WHERE `;
         whereExists = true;
       }
-      const syntax = queryParams.length > 2 ? queryParams[0] + "_" + queryParams[1] : queryParams[0];
+      const syntax = queryParams?.length > 2 ? queryParams[0] + "_" + queryParams[1] : queryParams[0];
       sql += condition === "LIKE" ? `${syntax} ${condition} "${value}"` : `${syntax} ${condition} ${value} `;
     }
   }
@@ -126,7 +126,7 @@ exports.readByEmail = function (email, callback) {
 exports.login = function (un, callback) {
   let sql = "SELECT * FROM users WHERE username = ?";
   db.query(sql, un, (err, d) => {
-    if (d.length < 1) data = { thongbao: `Id khong tim thay` };
+    if (d?.length < 1) data = { thongbao: `Id khong tim thay` };
     else {
       data = d[0];
     }

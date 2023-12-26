@@ -13,7 +13,7 @@ const storage = new CloudinaryStorage({
   cloudinary: cloudinary,
   params: {
     folder: "ImagesProduct",
-    format: async (req, file) => "png", // Changed this to return "png" for the format
+    format: async (req, file) => "webp", // Changed this to return "png" for the format
   },
 });
 
