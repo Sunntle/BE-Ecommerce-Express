@@ -10,6 +10,7 @@ var session = require('cookie-session');
 var app = express();
 var cors = require("cors");
 require("dotenv").config();
+const port = process.env.PORT || 8000;
 app.use(bodyParser.json());
 // view engine setup
 app.set("views", path.join(__dirname, "views"));
@@ -50,5 +51,7 @@ app.use(function (err, req, res, next) {
   res.status(err.status || 500);
   res.render("error");
 });
-
-module.exports = app;
+app.listen(port, (req, res) => {
+  console.log(`Connect port: ${port}`);
+});
+// module.exports = app
