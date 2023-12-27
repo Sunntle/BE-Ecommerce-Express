@@ -4,7 +4,7 @@
   "private": true,
   "scripts": {
     "start": "nodemon ./bin/www",
-    "build": "webpack --config webpack.prod.js --mode production",
+    "build": "npm install && echo \"yes\" | npm install -D webpack-cli && webpack --config webpack.prod.js --mode production",
     "build:dev": "webpack --config webpack.dev.js --mode development"
   },
   "dependencies": {
