@@ -31,9 +31,7 @@ app.use(cookieParser());
 app.use(express.static(path.join(__dirname, "public")));
 
 app.use(cors({
-  origin: '*',
-  credentials: true,
-  methods: ["GET,PUT,POST,DELETE"],
+  origin: '*'
 }));
 initRoutes(app)
 // catch 404 and forward to error handler
