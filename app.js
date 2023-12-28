@@ -30,7 +30,7 @@ app.use(express.urlencoded({ extended: false }));
 app.use(cookieParser());
 app.use(express.static(path.join(__dirname, "public")));
 app.use(cors({
-  origin: [process.env.CLIENT_URL_LOCAL, process.env.CLIENT_URL],
+  origin: [process.env.CLIENT_URL, process.env.CLIENT_URL_LOCAL],
   credentials: true,
   methods: ["GET,PUT,POST,DELETE,PATCH,OPTIONS"],
 }));
