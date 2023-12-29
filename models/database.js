@@ -8,13 +8,7 @@ const db = mysql.createConnection({
   port: process.env.DATABASE_PORT,
   multipleStatements: true,
 });
-db.connect((err,connection) =>
-{
-    console.log("Da ket noi database !")
-    if (err) {
-        console.log(err);
-        return;
-    }
-});
+
+
 module.exports = db;
 //lệnh exports để xuất (public) ra, cho ngoài module dùng được db

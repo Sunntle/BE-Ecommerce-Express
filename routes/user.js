@@ -1,12 +1,12 @@
 var express = require("express");
 var router = express.Router();
-var db = require("./../models/database");
 var modelUsers = require("./../models/user");
 const nodemailer = require("nodemailer");
 const jwt = require("jsonwebtoken");
 const fs = require("fs");
 const bcrypt = require("bcryptjs");
 const { authenticateUser, checkAdminRole } = require("../middlewares/authenication");
+const db = require("../models/database");
 const PRIVATE_KEY = fs.readFileSync("private-key.txt");
 require("dotenv").config();
 
@@ -19,6 +19,8 @@ router.get("/", authenticateUser, (req, res) => {
   } catch (err) {
     console.log(err);
     throw new Error(err)
+  } finally{
+    db.destroy()
   }
 });
 router.get("/:id", (req, res) => {
