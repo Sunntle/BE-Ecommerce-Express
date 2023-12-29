@@ -5,7 +5,12 @@ var modelSanPham = require("../models/product");
 
 router.get("/", function (req, res, next) {
   const { _page, _limit, _sort, _order, q, ...rest } = req.query;
-  modelSanPham.list(_limit, _page, _sort, _order, q, rest, (data) => res.json(data));
+  try {
+    modelSanPham.list(_limit, _page, _sort, _order, q, rest, (data) => res.json(data));
+  } catch (err) {
+    console.log(err);
+    throw new Error(err)
+  }
 });
 router.get("/idLoai/:id", (req, res) => {
   let id = req.params.id;

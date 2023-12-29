@@ -12,7 +12,14 @@ require("dotenv").config();
 
 router.get("/", authenticateUser, (req, res) => {
   const { _page, _limit, _sort, _order, q, ...rest } = req.query;
-  modelUsers.list(_limit, _page, _sort, _order, q, rest, (data) => res.json(data));
+  try {
+    modelUsers.list(_limit, _page, _sort, _order, q, rest, (data) =>
+      res.json(data)
+    );
+  } catch (err) {
+    console.log(err);
+    throw new Error(err)
+  }
 });
 router.get("/:id", (req, res) => {
   let id = req.params.id;

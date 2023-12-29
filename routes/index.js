@@ -18,16 +18,12 @@ const initRoutes = (app) =>{
     app.use("/product_colors", productColorRouter);
     app.use("/product_sizes", productSizesRouter);
     app.use("/images", imagesRouter);
-    app.use((req, res, next) => {
+    app.use('*', function(req, res){
         const err = new Error(`Route ${req.originalUrl} not found !`);
-        res.status(404)
-        next(err)
-    }, (err, req, res, next) => {
-        const statusCode = res.statusCode === 200 ? 500 : res.statusCode
-        return res.status(statusCode).json({
+        res.status(404).json({
             success: false,
             message: err.message
-        })
-    })
+        });
+      });
 }
 module.exports = initRoutes
