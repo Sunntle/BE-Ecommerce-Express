@@ -32,7 +32,7 @@ app.use(express.static(path.join(__dirname, "public")));
 app.use(cors({
   origin: [process.env.CLIENT_URL, process.env.CLIENT_URL_LOCAL],
   credentials: true,
-  methods: ["GET", "POST", "PUT", "DELETE"],
+  methods: ["GET", "POST", "PUT", "DELETE", "OPTIONS"],
 }));
 initRoutes(app)
 // catch 404 and forward to error handler
