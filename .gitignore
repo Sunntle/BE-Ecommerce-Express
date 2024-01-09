@@ -7,7 +7,6 @@
 .env
 # testing
 /coverage
-
 # production
 /build
 /dist
@@ -25,3 +24,4 @@ yarn-error.log*
 webpack.dev.js
 Dockerfile
 production
+data.sql
