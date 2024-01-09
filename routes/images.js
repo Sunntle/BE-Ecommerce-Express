@@ -1,7 +1,6 @@
 var express = require("express");
 var router = express.Router();
-var db = require("../models/database");
-var modelImages = require("../models/images");
+var modelImages = require("../controller/images");
 const parser = require("../middlewares/uploader"); // Changed the import to the new file name
 const cloudinary = require("cloudinary").v2;
 

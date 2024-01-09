@@ -1,11 +1,12 @@
 var express = require("express");
 var moment = require("moment");
 var router = express.Router();
-var db = require("../models/database");
-var modelCheckOut = require("../models/checkout");
-var modelUser = require("../models/user");
-var modelProduct = require("../models/product");
+var modelCheckOut = require("../controller/checkout");
+var modelUser = require("../controller/user");
+var modelProduct = require("../controller/product");
 const { authenticateUser } = require("../middlewares/authenication");
+const db = require("../config/database");
+const { error } = require("console");
 
 router.get("/", authenticateUser, (req, res) => {
   const { _page, _limit, _sort, _order, q, ...rest } = req.query;
@@ -47,27 +48,49 @@ router.post("/", authenticateUser, async (req, res) => {
     name: name,
     address: address,
   };
-  if (data.name === undefined && data.address === undefined) {
-    try {
+  try {
+    if (data.name === undefined && data.address === undefined) {
       const d = await modelUserReadPromise(id);
       data.name = d.name;
       data.address = d.address;
-    } catch (error) {
-      console.error("Error fetching user data:", error);
     }
-  }
-  modelCheckOut.create(data, (result) => {
-    const orderItems = item.map((el) => ({
-      order_id: result.insertId,
-      product_id: el.id,
-      quantity: el.quantity,
-      size: el.size,
-      color: el.color,
-    }));
-    modelCheckOut.createOrderItems(orderItems, (result2) => {
-      res.json(result.insertId);
+    db.commit(async function(err) {
+      if (err) {
+        console.error('Error committing transaction:', err);
+      } else {
+        let flag = false;
+        const orderItems = []
+        for (const el of item) {
+          try {
+            await handleDecProduct(el.id, el.quantity);
+            orderItems.push({
+              product_id: el.id,
+              quantity: el.quantity,
+              size: el.size,
+              color: el.color,
+            });
+          } catch (error) {
+            flag = true
+            console.error('Error processing item:', error);
+            db.rollback()
+            break;
+          }
+        }
+        if(!flag){
+          modelCheckOut.create(data, async (result) => {
+            const addingIdOrder = orderItems.map(el => ({...el, order_id: result.insertId}))
+            await modelCheckOut.createOrderItems(addingIdOrder,(result2)=>{
+              res.json(result.insertId)
+            });
+        });
+        }else res.status(200).send({ status: "error", code:"200", message: "Items are not in sufficient quantity" });
+      }
     });
-  });
+
+  } catch (error) {
+    console.error("Error fetching user data:", error);
+    res.status(200).send({ status: "error", code:"500", message: "Internal server error" });
+  }
 });
 router.post("/create_payment_url", authenticateUser, function (req, res, next) {
   res.header("Access-Control-Allow-Origin", "http://localhost:3001");
@@ -183,6 +206,14 @@ const modelProductReadPromise = (id) => {
   return new Promise((resolve, reject) => {
     modelProduct.read(id, (data) => {
       resolve(data);
+    });
+  });
+};
+const handleDecProduct = (id, quantity) => {
+  return new Promise((resolve, reject) => {
+    modelProduct.updateCountAndSold(id, quantity, (data) => {
+      if(data.changedRows > 0) resolve(data);
+      else reject("Product quantity is not enough")
     });
   });
 };

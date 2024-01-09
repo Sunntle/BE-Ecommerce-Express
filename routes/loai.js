@@ -1,7 +1,6 @@
 var express = require('express');
 var router = express.Router();
-var db = require('../models/database');
-var modelLoai = require('../models/loai');
+var modelLoai = require('../controller/loai');
 router.get('/',  (req, res) => { 
     modelLoai.list( function(data) { res.json(data)} ); 
 });

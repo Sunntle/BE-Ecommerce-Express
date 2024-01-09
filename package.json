@@ -3,7 +3,7 @@
   "version": "0.0.0",
   "private": true,
   "scripts": {
-    "start": "nodemon ./bin/www",
+    "start": "nodemon index.js",
     "build": "npm install && echo \"yes\" | npm install -D webpack-cli && webpack --config webpack.prod.js --mode production",
     "build:dev": "webpack --config webpack.dev.js --mode development"
   },

@@ -1,6 +1,4 @@
-var db = require("./database");
-const sqlSyntaxBasic = `SELECT p.*, GROUP_CONCAT(DISTINCT i.img ORDER BY i.img DESC SEPARATOR ';') AS allImg, GROUP_CONCAT(DISTINCT s.size) AS allSize,GROUP_CONCAT(DISTINCT c.color) AS allColor FROM sanpham p LEFT JOIN product_sizes ps ON p.id = ps.product_id LEFT JOIN size s ON ps.size_id = s.size_id LEFT JOIN product_colors pc ON p.id = pc.product_id LEFT JOIN color c ON pc.product_color = c.color_id LEFT JOIN images i ON p.id = i.idSp`;
-//DELETE FROM product_sizes WHERE product_id = <your_product_id> AND size_id = <your_size_id>;
+var db = require("../config/database");
 function queryList(
   sqlQuery,
   limit = undefined,
@@ -20,12 +18,16 @@ function queryList(
   }
   if (res) {
     for (const [key, value] of Object.entries(res)) {
-      const queryParams = key.split("_");
+      let queryParams = key.split("_");
       let condition;
+      let queryHaveManyParams;
       if (queryParams[1] == "lte") condition = "<=";
       else if (queryParams[1] == "gte") condition = ">=";
       else {
-        condition = "LIKE";
+        if (queryParams.length <= 2) condition = "LIKE";
+        else {
+          condition = "LIKE";
+        }
       }
       if (whereExists) {
         sql += ` AND `;
@@ -33,8 +35,8 @@ function queryList(
         sql += ` WHERE `;
         whereExists = true;
       }
-      sql +=
-        condition === "LIKE" ? `${queryParams[0]} ${condition} "${value}"` : `${queryParams[0]} ${condition} ${value} `;
+      const syntax = queryParams?.length > 2 ? queryParams[0] + "_" + queryParams[1] : queryParams[0];
+      sql += condition === "LIKE" ? `${syntax} ${condition} "${value}"` : `${syntax} ${condition} ${value} `;
     }
   }
   sql += ` GROUP BY p.id`;
@@ -54,10 +56,17 @@ function queryList(
     sql = sql + ` LIMIT 16 OFFSET ? `;
     arrParams.push(+offset);
   }
-  return {
-    sql: sql,
-    arrParams: arrParams,
-  };
+  if (arrParams.length > 0)
+    return {
+      sql: sql,
+      arrParams: arrParams,
+    };
+  else {
+    return {
+      sql: sql,
+      arrParams: null,
+    };
+  }
 }
 exports.list = function (
   limit = undefined,
@@ -68,56 +77,62 @@ exports.list = function (
   rest = undefined,
   callback
 ) {
-  const result = queryList(sqlSyntaxBasic, limit, offset, sort, order, q, rest);
+  const result = queryList(`SELECT *  FROM users as p`, limit, offset, sort, order, q, rest);
   db.query(result.sql, result.arrParams, function (err, d) {
     callback(d);
   });
 };
-exports.readByLoai = function (
-  id,
-  limit = undefined,
-  offset = undefined,
-  sort = undefined,
-  order = "DESC",
-  rest = undefined,
-  callback
-) {
-  let sql = sqlSyntaxBasic + " WHERE p.idLoai = ? ";
-  const result = queryList(sql, limit, offset, sort, order, rest);
-  db.query(result.sql, [+id, ...result.arrParams], (err, d) => {
-    if (d.length < 1) data = { thongbao: `IdLoai ${id} khong tim thay` };
-    callback(d);
-  });
-};
 exports.create = function (data, callback) {
-  let sql = "INSERT INTO sanpham SET ?";
+  //hàm chèn user mới vào table
+  let sql = "INSERT INTO users SET ?";
   db.query(sql, data, function (err, d) {
     callback(d);
   });
 };
 exports.update = function (id, data, callback) {
-  let sql = "UPDATE sanpham  SET ? WHERE id = ?";
+  let sql = "UPDATE users  SET ? WHERE id = ?";
   db.query(sql, [data, id], (err, d) => {
     if (err) throw err;
     callback();
   });
 };
-
+exports.delete = function (id, callback) {
+  let sql = `DELETE FROM order_items WHERE order_id IN ( SELECT od.id FROM order_details od WHERE od.user_id = ${id}); DELETE FROM order_details WHERE user_id = ${id}; DELETE FROM users WHERE id = ${id};`;
+  db.query(sql, (err, d) => {
+    if (err) throw err;
+    callback();
+  });
+};
 exports.read = function (id, callback) {
-  let sql = sqlSyntaxBasic + ` WHERE p.id = ?`;
+  let sql = "SELECT * FROM users WHERE id = ?";
   db.query(sql, id, (err, d) => {
-    if (d.length < 1) data = { thongbao: `Id ${id} khong tim thay` };
+    if(!d) data = {thongbao: "Khong tim thay"}
+    else{ 
+      if (d.length < 1) data = { thongbao: `Id  khong tim thay` };
+      else {
+        data = d[0];
+      }
+    }
+    callback(data);
+  });
+};
+exports.readByEmail = function (email, callback) {
+  let sql = "SELECT * FROM users WHERE email = ?";
+  db.query(sql, email, (err, d) => {
+    if (d.length < 1) data = { thongbao: `Id  khong tim thay` };
     else {
       data = d[0];
     }
     callback(data);
   });
 };
-
-exports.delete = function (id, callback) {
-  let sql = "DELETE FROM sanpham WHERE id = ?";
-  db.query(sql, id, (err, d) => {
-    if (err) throw err;
-    callback();
+exports.login = function (un, callback) {
+  let sql = "SELECT * FROM users WHERE username = ?";
+  db.query(sql, un, (err, d) => {
+    if (d?.length < 1) data = { thongbao: `Id khong tim thay` };
+    else {
+      data = d[0];
+    }
+    callback(data);
   });
 };

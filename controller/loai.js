@@ -1,4 +1,4 @@
-var db=require('./database'); 
+var db=require('../config/database'); 
 exports.list = function( callback) { 
     let sql = `SELECT *  FROM loaisanpham`;
     db.query(sql, function(err, d) { callback(d); }  );

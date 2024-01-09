@@ -1,12 +1,11 @@
 var express = require("express");
 var router = express.Router();
-var db = require("../models/database");
-var modelSanPham = require("../models/product");
+var modelSanPham = require("../controller/product");
 
 router.get("/", function (req, res, next) {
   const { _page, _limit, _sort, _order, q, ...rest } = req.query;
   try {
-    modelSanPham.list(_limit, _page, _sort, _order, q, rest, (data) => res.json(data));
+    modelSanPham.list(_limit, _page, _sort, _order, q, rest, (data) => {res.json(data)});
   } catch (err) {
     console.log(err);
     throw new Error(err)

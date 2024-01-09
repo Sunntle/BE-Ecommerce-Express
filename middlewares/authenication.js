@@ -1,5 +1,5 @@
 const jwt = require("jsonwebtoken");
-const User = require("../models/user");
+const User = require("../controller/user");
 const fs = require("fs");
 const PRIVATE_KEY = fs.readFileSync("private-key.txt");
 // Middleware to authenticate user

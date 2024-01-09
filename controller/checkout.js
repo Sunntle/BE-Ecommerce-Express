@@ -1,4 +1,4 @@
-var db = require("./database");
+var db = require("../config/database");
 function queryList(
   sqlQuery,
   limit = undefined,
@@ -88,20 +88,21 @@ exports.list = function (limit, offset, sort, order = "DESC", q, id, rest, callb
 exports.readOneOrderDetails = function (id, callback) {
   let sql = "SELECT * FROM order_details WHERE id=? ";
   db.query(sql, id, (err, d) => {
-    if (d.length < 1) data = { thongbao: `Id ${id} khong tim thay` };
+    if (d?.length < 1) data = { thongbao: `Id ${id} khong tim thay` };
     callback(d);
   });
 };
 exports.readOneOrderItems = function (id, callback) {
   let sql = "SELECT * FROM order_items WHERE order_id=?";
   db.query(sql, +id, (err, d) => {
-    if (d.length < 1) data = { thongbao: `Id ${id} khong tim thay` };
+    if (d?.length < 1) data = { thongbao: `Id ${id} khong tim thay` };
     callback(d);
   });
 };
 exports.create = function (data, callback) {
   let sql = "INSERT INTO order_details SET ?";
   db.query(sql, data, function (err, d) {
+    if(err) console.log(err);
     callback(d);
   });
 };

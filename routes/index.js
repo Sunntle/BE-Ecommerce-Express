@@ -7,17 +7,17 @@ var checkoutRouter = require("./checkout");
 var productSizesRouter = require("./product_sizes");
 var productColorRouter = require("./product_colors");
 var imagesRouter = require("./images");
-const handleConnectDb = require("../middlewares/handleKeepAliveConnection")
+// const handleConnectDb = require("../middlewares/handleKeepAliveConnection")
 const initRoutes = (app) =>{
-    app.use("/user",handleConnectDb, userRouter);
-    app.use("/loai",handleConnectDb, loaiRouter);
-    app.use("/product",handleConnectDb, productRouter);
-    app.use("/size",handleConnectDb, sizeRouter);
-    app.use("/color",handleConnectDb, colorRouter);
-    app.use("/checkout",handleConnectDb, checkoutRouter);
-    app.use("/product_colors",handleConnectDb, productColorRouter);
-    app.use("/product_sizes",handleConnectDb, productSizesRouter);
-    app.use("/images",handleConnectDb, imagesRouter);
+    app.use("/user", userRouter);
+    app.use("/loai", loaiRouter);
+    app.use("/product", productRouter);
+    app.use("/size", sizeRouter);
+    app.use("/color", colorRouter);
+    app.use("/checkout", checkoutRouter);
+    app.use("/product_colors", productColorRouter);
+    app.use("/product_sizes", productSizesRouter);
+    app.use("/images", imagesRouter);
     app.use('*', function(req, res){
         const err = new Error(`Route ${req.originalUrl} not found !`);
         res.status(404).json({

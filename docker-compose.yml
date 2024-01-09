@@ -1,0 +1,33 @@
+version: '3.8'
+services:
+  database-mysql-ecommerce:
+    image: mysql:8.0
+    restart: always
+    environment:
+      - MYSQL_DATABASE=ecommerce
+      - MYSQL_ROOT_PASSWORD=12345
+    ports:
+      - '3336:3306'
+    networks:
+      - ecommerce-network
+
+  backend_ecommerce:
+    build: 
+      context: .
+      dockerfile: Dockerfile
+    restart: unless-stopped
+    environment:
+      - MYSQL_DATABASE=ecommerce
+      - MYSQL_ROOT_PASSWORD=12345
+      - DATABASE_PASSWORD=12345
+      - DATABASE_HOST=database-mysql-ecommerce
+    ports:
+      - '5000:5000'
+    depends_on:
+      - database-mysql-ecommerce
+    command: ["node", "dist/main.js"]
+    networks:
+      - ecommerce-network
+
+networks:
+  ecommerce-network:

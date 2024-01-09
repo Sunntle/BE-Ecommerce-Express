@@ -1,4 +1,4 @@
-var db = require("./database");
+var db = require("../config/database");
 exports.createProductSize = function (data, callback) {
   let sql = "INSERT INTO product_sizes (product_id,size_id) VALUES ?";
   db.query(sql, [data], function (err, d) {

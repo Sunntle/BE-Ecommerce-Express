@@ -1,7 +1,6 @@
 var express = require("express");
 var router = express.Router();
-var db = require("../models/database");
-var modelProductColor = require("../models/product_colors");
+var modelProductColor = require("../controller/product_colors");
 router.post("/", (req, res) => {
   const color_id = req.body.color_id;
   const product_id = req.body.product_id;

@@ -1,4 +1,4 @@
-var db = require("./database");
+var db = require("../config/database");
 
 exports.getImgProduct = function (idSp, callback) {
   let sql = "SELECT * FROM images WHERE idSp =?";

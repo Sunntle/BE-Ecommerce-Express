@@ -1,7 +1,6 @@
 var express = require("express");
 var router = express.Router();
-var db = require("../models/database");
-var modelProductSize = require("../models/product_sizes");
+var modelProductSize = require("../controller/product_sizes");
 router.post("/", (req, res) => {
   const size_id = req.body.size_id;
   const product_id = req.body.product_id;
