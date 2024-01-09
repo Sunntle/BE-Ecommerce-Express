@@ -79,6 +79,7 @@ exports.list = function (
 ) {
   const result = queryList(`SELECT *  FROM users as p`, limit, offset, sort, order, q, rest);
   db.query(result.sql, result.arrParams, function (err, d) {
+  if(err) console.log(err);
     callback(d);
   });
 };
@@ -86,6 +87,7 @@ exports.create = function (data, callback) {
   //hàm chèn user mới vào table
   let sql = "INSERT INTO users SET ?";
   db.query(sql, data, function (err, d) {
+  if(err) console.log(err);
     callback(d);
   });
 };

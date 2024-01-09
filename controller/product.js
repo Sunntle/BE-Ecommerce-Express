@@ -70,6 +70,7 @@ exports.list = function (
 ) {
   const result = queryList(sqlSyntaxBasic, limit, offset, sort, order, q, rest);
   db.query(result.sql, result.arrParams, function (err, d) {
+  if(err) console.log(err);
     callback(d);
   });
 };
@@ -86,12 +87,14 @@ exports.readByLoai = function (
   const result = queryList(sql, limit, offset, sort, order, rest);
   db.query(result.sql, [+id, ...result.arrParams], (err, d) => {
     if (d.length < 1) data = { thongbao: `IdLoai ${id} khong tim thay` };
+  if(err) console.log(err);
     callback(d);
   });
 };
 exports.create = function (data, callback) {
   let sql = "INSERT INTO sanpham SET ?";
   db.query(sql, data, function (err, d) {
+  if(err) console.log(err);
     callback(d);
   });
 };

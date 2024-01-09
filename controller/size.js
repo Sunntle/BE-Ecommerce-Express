@@ -2,6 +2,7 @@ var db = require("../config/database");
 exports.list = function (callback) {
   let sql = `SELECT *  FROM size`;
   db.query(sql, function (err, d) {
+  if(err) console.log(err);
     callback(d);
   });
 };
@@ -9,6 +10,7 @@ exports.list = function (callback) {
 exports.create = function (data, callback) {
   let sql = "INSERT INTO size SET ?";
   db.query(sql, data, function (err, d) {
+  if(err) console.log(err);
     callback(d);
   });
 };

@@ -82,6 +82,7 @@ function queryList(
 exports.list = function (limit, offset, sort, order = "DESC", q, id, rest, callback) {
   const result = queryList(`SELECT * FROM order_details as p`, limit, offset, sort, order, q, id, rest);
   db.query(result.sql, result.arrParams, function (err, d) {
+  if(err) console.log(err);
     callback(d);
   });
 };
@@ -89,6 +90,7 @@ exports.readOneOrderDetails = function (id, callback) {
   let sql = "SELECT * FROM order_details WHERE id=? ";
   db.query(sql, id, (err, d) => {
     if (d?.length < 1) data = { thongbao: `Id ${id} khong tim thay` };
+  if(err) console.log(err);
     callback(d);
   });
 };
@@ -96,13 +98,14 @@ exports.readOneOrderItems = function (id, callback) {
   let sql = "SELECT * FROM order_items WHERE order_id=?";
   db.query(sql, +id, (err, d) => {
     if (d?.length < 1) data = { thongbao: `Id ${id} khong tim thay` };
+  if(err) console.log(err);
     callback(d);
   });
 };
 exports.create = function (data, callback) {
   let sql = "INSERT INTO order_details SET ?";
   db.query(sql, data, function (err, d) {
-    if(err) console.log(err);
+  if(err) console.log(err);
     callback(d);
   });
 };
@@ -110,6 +113,7 @@ exports.createOrderItems = function (data, callback) {
   let sql = "INSERT INTO order_items (order_id, product_id, quantity, size, color) VALUES ?";
   const values = data.map((el) => [el.order_id, el.product_id, el.quantity, el.size ?? null, el.color ?? null]);
   db.query(sql, [values], function (err, d) {
+  if(err) console.log(err);
     callback(d);
   });
 };
